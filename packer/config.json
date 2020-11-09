@@ -35,8 +35,8 @@
       "iso_paths": ["{{ user `iso_paths` }}"],
       "iso_checksum": "{{ user `iso_checksum` }}",
 
-      "ssh_username": "vagrant",
-      "ssh_password": "vagrant",
+      "ssh_username": "centos",
+      "ssh_password": "centos",
 
       "boot_command": [
         "<tab> text ks=https://raw.githubusercontent.com/arctiqjacob/blizzard-dc/main/packer/ks.cfg<enter><wait>"
@@ -47,7 +47,7 @@
   "provisioners": [
     {
       "type": "shell",
-      "inline": "hostnamectl set-hostname {{ user `vm_name` }}"
+      "inline": "sudo hostnamectl set-hostname {{ user `vm_name` }}"
     }
   ]
 }
