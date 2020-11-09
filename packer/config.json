@@ -39,7 +39,7 @@
 		"ssh_password": "vagrant",
 
 		"boot_command": [
-        	"<tab> text ks=https://raw.githubusercontent.com/geerlingguy/packer-boxes/master/centos8/http/ks.cfg<enter><wait>"
+        	"<tab> text ks=https://raw.githubusercontent.com/arctiqjacob/blizzard-dc/main/packer/ks.cfg<enter><wait>"
     	]
 	}]
 }
