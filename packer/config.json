@@ -1,0 +1,45 @@
+{
+	"builders": [
+	{
+		"type": "vsphere-iso",
+
+		"CPUs": 1,
+		"RAM": 2048,
+
+		"vcenter_server": "{{ user `vsphere_server` }}",
+		"username": "{{ user `username` }}",
+		"password": "{{ user `vsphere_password` }}",
+		"insecure_connection": "{{ user `vsphere_insecure_connection` }}",
+		"datacenter": "{{ user `vsphere_datacenter` }}",
+
+		"vm_name": "{{ user `vm_name` }}",
+		"host": "{{ user `host` }}",
+		"datastore": "{{ user `datastore` }}",
+
+		"guest_os_type": "centos8_64Guest",
+
+		"network_adapters": [
+			{
+				"network": "Internal Network",
+				"network_card": "vmxnet3"
+			}
+		],
+
+		"storage": [
+		    {
+		      "disk_size": 20000,
+		      "disk_thin_provisioned": true
+		    }
+		],
+
+		"iso_paths": ["{{ user `iso_paths` }}"],
+		"iso_checksum": "{{ user `iso_checksum` }}",
+
+		"ssh_username": "vagrant",
+		"ssh_password": "vagrant",
+
+		"boot_command": [
+        	"<tab> text ks=https://raw.githubusercontent.com/geerlingguy/packer-boxes/master/centos8/http/ks.cfg<enter><wait>"
+    	]
+	}]
+}
