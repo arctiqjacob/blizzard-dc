@@ -1,2 +1,7 @@
 consul_datacenter: 'blizzard'
 consul_server_list: ['192.168.100.130','192.168.100.129','192.168.100.128']
+
+consul_enable_tls: true
+consul_tls_ca_file: 'tls/consul-agent-ca.pem'
+consul_tls_cert_file: 'tls/blizzard-server-consul-0.pem'
+consul_tls_key_file: 'tls/blizzard-server-consul-0-key.pem'
