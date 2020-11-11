@@ -1,0 +1,6 @@
+---
+- hosts: clients
+  become: yes
+  roles:
+    - role: ansible-role-consul
+    - role: ansible-role-vault
