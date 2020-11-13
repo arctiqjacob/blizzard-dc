@@ -5,3 +5,5 @@ consul_enable_tls: true
 consul_tls_ca_file: 'tls/consul-agent-ca.pem'
 consul_tls_cert_file: 'tls/blizzard-server-consul-0.pem'
 consul_tls_key_file: 'tls/blizzard-server-consul-0-key.pem'
+
+consul_enable_acl: true

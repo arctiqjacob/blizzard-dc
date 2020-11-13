@@ -1,0 +1,29 @@
+{
+  "snapshot_agent": {
+    "http_addr": "192.168.100.128:8500",
+    "datacenter": "blizzard",
+    "ca_file": "../tls/consul-agent-ca.pem",
+    "ca_path": "../tls/",
+    "cert_file": "../tls/blizzard-server-consul-0.pem",
+    "key_file": "../tls/blizzard-server-consul-0-key.pem",
+    "tls_server_name": "consul-0.blizzard",
+    "log": {
+      "level": "INFO",
+      "enable_syslog": false,
+      "syslog_facility": "LOCAL0"
+    },
+    "snapshot": {
+      "interval": "30m",
+      "retain": 20,
+      "stale": false,
+      "service": "consul-snapshot",
+      "deregister_after": "72h",
+      "lock_key": "consul-snapshot/lock",
+      "max_failures": 3,
+      "local_scratch_path": ""
+    },
+    "local_storage": {
+      "path": "."
+    }
+  }
+}
