@@ -1,0 +1,66 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: medusa
+  labels:
+    name: medusa
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medusa
+  namespace: medusa
+spec:
+  selector:
+    matchLabels:
+      app: medusa
+  template:
+    metadata:
+      labels:
+        app: medusa
+    spec:
+      containers:
+      - name: medusa
+        image: linuxserver/medusa
+        env:
+          - name: PGID
+            value: '1001'
+          - name: PUID
+            value: '1001'
+        volumeMounts:
+        - name: downloads
+          mountPath: /downloads
+        - name: tv
+          mountPath: /tv
+        - name: config
+          mountPath: /config
+        ports:
+        - containerPort: 8081
+          name: medusa-ui
+      volumes:
+      - name: downloads
+        hostPath:
+          path: /array/transmission/downloads
+          type: DirectoryOrCreate
+      - name: config
+        hostPath:
+          path: /array/medusa/config
+          type: DirectoryOrCreate
+      - name: tv
+        hostPath:
+          path: /array/medusa/tv
+          type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medusa-ui
+  namespace: medusa
+spec:
+  selector:
+    app: medusa
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
