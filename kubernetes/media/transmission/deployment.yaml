@@ -1,11 +1,4 @@
 ---
-kind: Namespace
-apiVersion: v1
-metadata:
-  name: transmission
-  labels:
-    name: transmission
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -51,16 +44,3 @@ spec:
         hostPath:
           path: /array/transmission/watch
           type: DirectoryOrCreate
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: transmission-ui
-  namespace: transmission
-spec:
-  selector:
-    app: transmission
-  ports:
-    - protocol: TCP
-      port: 9091
-      targetPort: 9091
