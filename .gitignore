@@ -1,5 +1,7 @@
 packer_cache
 packer/variables.json
 consul/tls
+consul/binary
 consul/snapshot-agent/acl_token
 vault/tls
+vault/binary

@@ -1,4 +1,5 @@
-consul_version: '1.8.5+ent'
+consul_local_binary: true
+
 consul_datacenter: 'blizzard'
 consul_server_list: ['192.168.100.130','192.168.100.129','192.168.100.128']
 
