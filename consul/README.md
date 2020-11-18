@@ -1,7 +1,7 @@
 # Consul
 The following steps are used to deploy Consul server.
 
-## Deploying Vault
+## Deploying Consul Server
 Update the `inventory` file, as well as the `group_vars` file and then run the following commands.
 ```bash
 # install Ansible roles
