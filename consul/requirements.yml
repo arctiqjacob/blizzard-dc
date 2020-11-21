@@ -1,2 +1,0 @@
-- name: ansible-role-consul
-  src: https://github.com/arctiqjacob/ansible-role-consul.git
