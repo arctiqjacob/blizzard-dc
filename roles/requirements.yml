@@ -1,0 +1,5 @@
+- name: ansible-role-consul
+  src: https://github.com/arctiqjacob/ansible-role-consul.git
+
+- name: ansible-role-vault
+  src: https://github.com/arctiqjacob/ansible-role-vault.git
