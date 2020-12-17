@@ -39,7 +39,7 @@
       "ssh_password": "centos",
 
       "boot_command": [
-        "<tab> text ks=https://raw.githubusercontent.com/arctiqjacob/blizzard-dc/main/packer/ks.cfg<enter><wait>"
+        "<tab> text ks=https://raw.githubusercontent.com/arctiqjacob/blizzard-dc/main/packer/centos-822004/ks.cfg<enter><wait>"
       ]
     }
   ],
