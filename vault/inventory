@@ -1,2 +1,4 @@
 [clients]
-192.168.100.131
+vault01.blizzard.lab
+vault02.blizzard.lab
+vault03.blizzard.lab
