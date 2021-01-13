@@ -1,0 +1,17 @@
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: consul-ui
+  namespace: consul
+spec:
+  rules:
+    - host: "consul.coldbrew.labs"
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: consul-ui
+                port:
+                  number: 80

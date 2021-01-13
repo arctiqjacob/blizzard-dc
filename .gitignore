@@ -5,3 +5,4 @@ consul/binary
 consul/snapshot-agent/acl_token
 vault/tls
 vault/binary
+*.DS_Store

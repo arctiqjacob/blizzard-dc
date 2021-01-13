@@ -1,0 +1,10 @@
+injector:
+  enabled: false
+
+server:
+  ha:
+    enabled: true
+    replicas: 1
+
+ui:
+  enabled: true
