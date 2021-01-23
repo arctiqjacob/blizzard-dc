@@ -1,0 +1,52 @@
+---
+- name: Prepare nodes for K3s
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update all packages to their latest version
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+    - name: Install necessary packages
+      ansible.builtin.apt:
+        pkg:
+          - unzip
+          - nfs-common
+          - openvpn
+    - name: Enable cgroup via boot commandline if not already enabled for Ubuntu on a Raspberry Pi
+      ansible.builtin.lineinfile:
+        path: /boot/firmware/cmdline.txt
+        backrefs: yes
+        regexp: '^((?!.*\bcgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory\b).*)$'
+        line: '\1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory'
+    - name: Download PIA OpenVPN profiles
+      ansible.builtin.unarchive:
+        src: https://www.privateinternetaccess.com/openvpn/openvpn.zip
+        dest: /etc/openvpn
+        remote_src: yes
+    - name: Copy login info file
+      ansible.builtin.copy:
+        src: files/login_info
+        dest: /home/ubuntu/login_info
+        owner: ubuntu
+        group: ubuntu
+        mode: '0400'
+    - name: Update Toronto VPN profile with login info
+      ansible.builtin.lineinfile:
+        path: /etc/openvpn/ca_toronto.ovpn
+        regexp: '^auth-user-pass'
+        line: auth-user-pass /home/ubuntu/login_info
+    - name: Download k3s binary arm64
+      ansible.builtin.get_url:
+        url: https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s-arm64
+        checksum: sha256:https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/sha256sum-arm64.txt
+        dest: /usr/local/bin/k3s
+        owner: root
+        group: root
+        mode: 0755
+    - name: Reboot
+      ansible.builtin.reboot:
+    - name: Wait 300 seconds, but only start checking after 60 seconds
+      ansible.builtin.wait_for_connection:
+        delay: 60
+        timeout: 300

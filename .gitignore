@@ -6,3 +6,4 @@ consul/snapshot-agent/acl_token
 vault/tls
 vault/binary
 *.DS_Store
+kubernetes/k3s/files

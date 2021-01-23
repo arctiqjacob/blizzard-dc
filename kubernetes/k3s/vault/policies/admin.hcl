@@ -54,17 +54,3 @@ path "sys/mounts"
 path "identity/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
-
-# Allow users to list all paths at the users path
-path "users/metadata" {
-  capabilities = ["list"]
-}
-
-# Allow users to create and manage their own kv secrets engine
-path "users/data/{{ identity.entity.aliases.auth_userpass_68f9b0ea.name }}/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "users/metadata/{{ identity.entity.aliases.auth_userpass_68f9b0ea.name }}/*" {
-  capabilities = ["read", "list"]
-}

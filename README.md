@@ -1,2 +1,2 @@
 # blizzard-dc
-Repository for vSphere environment.
+Repository for vSphere and RaspberryPi environments

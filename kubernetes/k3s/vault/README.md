@@ -20,7 +20,7 @@ Success! Enabled userpass auth method at: userpass/
 
 # create a user
 $ vault write auth/userpass/users/jacobm \
-  password=foo policies=default
+  password=foo policies=admin
 Success! Data written to: auth/userpass/users/jacobm
 ```
 

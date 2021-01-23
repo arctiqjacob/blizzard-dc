@@ -1,8 +1,16 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: storage
+  labels:
+    name: storage
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: nfs-client-provisioner
-  namespace: default
+  namespace: storage
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -29,7 +37,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: nfs-client-provisioner
-    namespace: default
+    namespace: storage
 roleRef:
   kind: ClusterRole
   name: nfs-client-provisioner-runner
@@ -39,7 +47,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: leader-locking-nfs-client-provisioner
-  namespace: default
+  namespace: storage
 rules:
   - apiGroups: [""]
     resources: ["endpoints"]
@@ -49,11 +57,11 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: leader-locking-nfs-client-provisioner
-  namespace: default
+  namespace: storage
 subjects:
   - kind: ServiceAccount
     name: nfs-client-provisioner
-    namespace: default
+    namespace: storage
 roleRef:
   kind: Role
   name: leader-locking-nfs-client-provisioner
@@ -65,7 +73,7 @@ metadata:
   name: nfs-client-provisioner
   labels:
     app: nfs-client-provisioner
-  namespace: default
+  namespace: storage
 spec:
   replicas: 1
   strategy:
@@ -87,22 +95,22 @@ spec:
               mountPath: /persistentvolumes
           env:
             - name: PROVISIONER_NAME
-              value: blizzard.nas/nfs
+              value: coldbrew.labs/nfs
             - name: NFS_SERVER
-              value: 10.88.111.10
+              value: 192.168.1.144
             - name: NFS_PATH
               value: /volume1/kubernetes
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.88.111.10
+            server: 192.168.1.144
             path: /volume1/kubernetes
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: blizzard-storage
-provisioner: blizzard.nas/nfs
+  name: coldbrew-storage
+provisioner: coldbrew.labs/nfs
 parameters:
   onDelete: delete
   archiveOnDelete: "false"
