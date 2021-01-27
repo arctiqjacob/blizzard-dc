@@ -8,6 +8,7 @@ spec:
   selector:
     matchLabels:
       app: radarr
+  revisionHistoryLimit: 1
   template:
     metadata:
       labels:
@@ -17,10 +18,10 @@ spec:
       - name: radarr
         image: linuxserver/radarr
         env:
-          - name: PGID
-            value: '1000'
           - name: PUID
-            value: '1000'
+            value: '1026'
+          - name: PGID
+            value: '100'
           - name: TZ
             value: 'America/Toronto'
         readinessProbe:

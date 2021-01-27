@@ -2,21 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sonarr
+  name: medusa
   namespace: media
 spec:
   selector:
     matchLabels:
-      app: sonarr
+      app: medusa
   revisionHistoryLimit: 1
   template:
     metadata:
       labels:
-        app: sonarr
+        app: medusa
     spec:
       containers:
-      - name: sonarr
-        image: linuxserver/sonarr
+      - name: medusa
+        image: linuxserver/medusa
         env:
           - name: PUID
             value: '1026'
@@ -26,23 +26,23 @@ spec:
             value: 'America/Toronto'
         readinessProbe:
           tcpSocket:
-            port: 8989
+            port: 8081
           initialDelaySeconds: 5
           periodSeconds: 10
         volumeMounts:
-          - name: sonarr-config-pv-storage
+          - name: medusa-config-pv-storage
             mountPath: /config
           - name: tv
             mountPath: /tv
           - name: downloads
             mountPath: /downloads
         ports:
-        - containerPort: 8989
-          name: sonarr-ui
+        - containerPort: 8081
+          name: medusa-ui
       volumes:
-        - name: sonarr-config-pv-storage
+        - name: medusa-config-pv-storage
           persistentVolumeClaim:
-            claimName: sonarr-config-pv-claim
+            claimName: medusa-config-pv-claim
         - name: tv
           nfs:
             server: 192.168.1.144
@@ -55,7 +55,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: sonarr-config-pv-claim
+  name: medusa-config-pv-claim
   namespace: media
 spec:
   accessModes:
@@ -67,30 +67,30 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: sonarr-ui
+  name: medusa-ui
   namespace: media
 spec:
   selector:
-    app: sonarr
+    app: medusa
   ports:
     - protocol: TCP
-      port: 8989
-      targetPort: 8989
+      port: 8081
+      targetPort: 8081
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: sonarr
+  name: medusa
   namespace: media
 spec:
   rules:
-    - host: 'sonarr.coldbrew.labs'
+    - host: 'medusa.coldbrew.labs'
       http:
         paths:
           - path: /
             pathType: Exact
             backend:
               service:
-                name: sonarr-ui
+                name: medusa-ui
                 port:
-                  number: 8989
+                  number: 8081
