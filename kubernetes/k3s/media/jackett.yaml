@@ -17,10 +17,10 @@ spec:
       - name: jackett
         image: linuxserver/jackett
         env:
-          - name: PGID
-            value: '1000'
           - name: PUID
-            value: '1000'
+            value: '1026'
+          - name: PGID
+            value: '100'
           - name: TZ
             value: 'America/Toronto'
         readinessProbe:
