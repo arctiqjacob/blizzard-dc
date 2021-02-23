@@ -1,5 +1,0 @@
-[servers]
-raspberrypi01.coldbrew.labs ansible_ssh_user=ubuntu k3s_version=v1.19.7+k3s1
-
-[agents]
-raspberrypi02.coldbrew.labs ansible_ssh_user=ubuntu k3s_version=v1.19.7+k3s1

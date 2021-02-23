@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: local-path-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug
+  namespace: default
+spec:
+  containers:
+    - name: busybox
+      image: busybox
+      volumeMounts:
+      - mountPath: /array
+        name: volv
+      args:
+        - sleep
+        - "1000000"
+      imagePullPolicy: Always
+  volumes:
+  - name: volv
+    persistentVolumeClaim:
+      claimName: local-path-pvc

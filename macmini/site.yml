@@ -1,0 +1,149 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Ensure passwordless sudo
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - 'nfs-common'
+          - 'unzip'
+          - 'openvpn'
+          - 'apt-transport-https'
+          - 'ca-certificates'
+          - 'curl'
+          - 'gnupg-agent'
+          - 'software-properties-common'
+        update_cache: yes
+        autoclean: yes
+
+    - name: Create media user
+      ansible.builtin.user:
+        name: 'media'
+        home: '/array'
+        group: 'users'
+        shell: '/bin/bash'
+        uid: '1026'
+
+    - name: Create media directories
+      ansible.builtin.file:
+        path: '{{ item }}'
+        state: 'directory'
+        mode: '0755'
+        owner: 'media'
+        group: 'users'
+      with_items:
+        - '/array'
+        - '/array/tv-shows'
+        - '/array/movies'
+        - '/array/music'
+        - '/array/downloads'
+        - '/array/config'
+
+    - name: Mount NFS volumes
+      ansible.posix.mount:
+        src: '{{ nfs_server }}:/volume1/array/{{ item }}'
+        path: '/array/{{ item }}'
+        opts: rw,sync,hard,intr
+        state: mounted
+        fstype: nfs
+      with_items:
+        - 'tv-shows'
+        - 'movies'
+        - 'music'
+        - 'downloads'
+
+    - name: Add Docker GPG key
+      ansible.builtin.apt_key:
+        url: 'https://download.docker.com/linux/ubuntu/gpg'
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: 'deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable'
+
+    - name: Install Docker packages
+      ansible.builtin.apt:
+        name:
+          - 'docker-ce'
+          - 'docker-ce-cli'
+          - 'containerd.io'
+        update_cache: yes
+
+    - name: Ensure Docker is started and enabled
+      ansible.builtin.systemd:
+        state: 'started'
+        name: 'docker'
+        enabled: yes
+
+    - name: Install Docker Compose
+      ansible.builtin.get_url:
+        url: 'https://github.com/docker/compose/releases/download/1.28.2/docker-compose-Linux-x86_64'
+        dest: '/usr/local/bin/docker-compose'
+        mode: '0755'
+
+    - name: Copy Docker Compose file to server
+      ansible.builtin.copy:
+        src: 'files/docker-compose.yml'
+        dest: '/array/docker-compose.yml'
+        mode: '0744'
+        owner: 'media'
+        group: 'users'
+
+    - name: Download PIA OpenVPN profiles
+      ansible.builtin.unarchive:
+        src: 'https://www.privateinternetaccess.com/openvpn/openvpn.zip'
+        dest: '/etc/openvpn'
+        remote_src: yes
+
+    - name: Copy PIA login file
+      ansible.builtin.copy:
+        src: 'files/login_info'
+        dest: '/etc/openvpn/login_info'
+        mode: '0400'
+        owner: 'root'
+        group: 'root'
+
+    - name: Create an OpenVPN config file
+      ansible.builtin.copy:
+        src: '/etc/openvpn/ca_toronto.ovpn'
+        dest: '/etc/openvpn/ca_toronto.conf'
+        remote_src: yes
+
+    - name: Update Toronto VPN profile with login info
+      ansible.builtin.lineinfile:
+        path: '/etc/openvpn/ca_toronto.conf'
+        regexp: '^auth-user-pass'
+        line: 'auth-user-pass /etc/openvpn/login_info'
+
+    - name: Ensure OpenVPN is started and enabled
+      ansible.builtin.systemd:
+        state: 'started'
+        name: 'openvpn@ca_toronto'
+        enabled: yes
+
+    - name: Install Plex Media Server
+      ansible.builtin.apt:
+        deb: 'https://downloads.plex.tv/plex-media-server-new/1.21.3.4021-5a0a3e4b2/debian/plexmediaserver_1.21.3.4021-5a0a3e4b2_amd64.deb'
+
+    - name: Add Plex user to Users group
+      ansible.builtin.user:
+        name: 'plex'
+        groups: 'users'
+        append: yes
+
+    - name: Ensure Plex is started and enabled
+      ansible.builtin.systemd:
+        state: 'started'
+        name: 'plexmediaserver'
+        enabled: yes
+
+    # - name: Ensure Docker Compose up
+    #   community.general.docker_compose:
+    #     project_src: '/array/docker-compose.yml'

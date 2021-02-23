@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deluge
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      app: deluge
+  template:
+    metadata:
+      labels:
+        app: deluge
+      annotations:
+        'consul.hashicorp.com/connect-inject': 'true'
+    spec:
+      containers:
+      - name: deluge
+        image: linuxserver/deluge
+        env:
+          - name: PUID
+            value: '1026'
+          - name: PGID
+            value: '100'
+          - name: TZ
+            value: 'America/Toronto'
+        readinessProbe:
+          tcpSocket:
+            port: 8112
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        volumeMounts:
+          - name: deluge-config-pv-storage
+            mountPath: /config
+          - name: downloads
+            mountPath: /downloads
+        ports:
+        - containerPort: 8112
+          name: deluge
+      volumes:
+        - name: deluge-config-pv-storage
+          persistentVolumeClaim:
+            claimName: deluge-config-pv-claim
+        - name: downloads
+          hostPath: # NFS mount
+            path: /deluge
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: deluge-config-pv-claim
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deluge
+  namespace: media
+spec:
+  selector:
+    app: deluge
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8112
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: deluge
+  namespace: media
+spec:
+  rules:
+    - host: 'deluge.coldbrew.labs'
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: deluge
+                port:
+                  number: 80

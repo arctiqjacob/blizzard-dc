@@ -1,0 +1,86 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jackett
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      app: jackett
+  template:
+    metadata:
+      labels:
+        app: jackett
+      annotations:
+        'consul.hashicorp.com/connect-inject': 'true'
+    spec:
+      containers:
+      - name: jackett
+        image: linuxserver/jackett
+        env:
+          - name: PUID
+            value: '1026'
+          - name: PGID
+            value: '100'
+          - name: TZ
+            value: 'America/Toronto'
+        readinessProbe:
+          tcpSocket:
+            port: 9117
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        volumeMounts:
+          - name: jackett-config-pv-storage
+            mountPath: /config
+        ports:
+        - containerPort: 9117
+          name: jackett
+      volumes:
+        - name: jackett-config-pv-storage
+          persistentVolumeClaim:
+            claimName: jackett-config-pv-claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jackett-config-pv-claim
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jackett
+  namespace: media
+spec:
+  selector:
+    app: jackett
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9117
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jackett
+  namespace: media
+spec:
+  rules:
+    - host: 'jackett.coldbrew.labs'
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: jackett
+                port:
+                  number: 80

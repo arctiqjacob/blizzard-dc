@@ -1,0 +1,97 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lidarr
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      app: lidarr
+  revisionHistoryLimit: 1
+  template:
+    metadata:
+      labels:
+        app: lidarr
+      annotations:
+        'consul.hashicorp.com/connect-inject': 'true'
+    spec:
+      containers:
+      - name: lidarr
+        image: linuxserver/lidarr:arm64v8-latest
+        env:
+          - name: PUID
+            value: '1026'
+          - name: PGID
+            value: '100'
+          - name: TZ
+            value: 'America/Toronto'
+        readinessProbe:
+          tcpSocket:
+            port: 8686
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        volumeMounts:
+          - name: lidarr-config-pv-storage
+            mountPath: /config
+          - name: music
+            mountPath: /music
+          - name: downloads
+            mountPath: /downloads
+        ports:
+        - containerPort: 8686
+          name: lidarr
+      volumes:
+        - name: lidarr-config-pv-storage
+          persistentVolumeClaim:
+            claimName: lidarr-config-pv-claim
+        - name: music
+          hostPath: # NFS mount
+            path: /music
+        - name: downloads
+          hostPath: # NFS mount
+            path: /deluge
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lidarr-config-pv-claim
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lidarr
+  namespace: media
+spec:
+  selector:
+    app: lidarr
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8686
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lidarr
+  namespace: media
+spec:
+  rules:
+    - host: 'lidarr.coldbrew.labs'
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: lidarr
+                port:
+                  number: 80

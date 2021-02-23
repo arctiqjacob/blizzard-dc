@@ -1,0 +1,97 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      app: radarr
+  revisionHistoryLimit: 1
+  template:
+    metadata:
+      labels:
+        app: radarr
+      annotations:
+        'consul.hashicorp.com/connect-inject': 'true'
+    spec:
+      containers:
+      - name: radarr
+        image: linuxserver/radarr
+        env:
+          - name: PUID
+            value: '1026'
+          - name: PGID
+            value: '100'
+          - name: TZ
+            value: 'America/Toronto'
+        readinessProbe:
+          tcpSocket:
+            port: 7878
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        volumeMounts:
+          - name: radarr-config-pv-storage
+            mountPath: /config
+          - name: movies
+            mountPath: /movies
+          - name: downloads
+            mountPath: /downloads
+        ports:
+        - containerPort: 7878
+          name: radarr
+      volumes:
+        - name: radarr-config-pv-storage
+          persistentVolumeClaim:
+            claimName: radarr-config-pv-claim
+        - name: movies
+          hostPath: # NFS mount
+            path: /movies
+        - name: downloads
+          hostPath: # NFS mount
+            path: /deluge
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: radarr-config-pv-claim
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radarr
+  namespace: media
+spec:
+  selector:
+    app: radarr
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 7878
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: radarr
+  namespace: media
+spec:
+  rules:
+    - host: 'radarr.coldbrew.labs'
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: radarr
+                port:
+                  number: 80

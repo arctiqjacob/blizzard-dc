@@ -1,0 +1,56 @@
+---
+version: "3.9"
+services:
+  deluge:
+    image: ghcr.io/linuxserver/deluge
+    container_name: deluge
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/Toronto
+    volumes:
+      - /array/config/deluge:/config
+      - /array/downloads:/downloads
+    ports:
+      - 8112:8112
+    restart: unless-stopped
+  sonarr:
+    image: ghcr.io/linuxserver/sonarr
+    container_name: sonarr
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/Toronto
+    volumes:
+      - /array/config/sonarr:/config
+      - /array/tv-shows:/tv
+      - /array/downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+  radarr:
+    image: ghcr.io/linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/Toronto
+    volumes:
+      - /array/config/radarr:/config
+      - /array/movies:/movies
+      - /array/downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+  jackett:
+    image: ghcr.io/linuxserver/jackett
+    container_name: jackett
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/Toronto
+    volumes:
+      - /array/config/jackett:/config
+    ports:
+      - 9117:9117
+    restart: unless-stopped

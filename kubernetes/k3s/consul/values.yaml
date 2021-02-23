@@ -1,9 +1,0 @@
----
-global:
-  datacenter: blizzard
-  name: consul
-
-server:
-  replicas: 1
-  bootstrapExpect: 1
-  storage: 5Gi
