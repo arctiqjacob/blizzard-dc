@@ -54,6 +54,21 @@ resource "helm_release" "consul" {
     name  = "server.storageClass"
     value = "coldbrew-storage"
   }
+
+  set {
+    name  = "server.exposeGossipAndRPCPorts"
+    value = true
+  }
+
+  set {
+    name  = "server.ports.serflan.port"
+    value = "9301"
+  }
+
+  set {
+    name  = "client.exposeGossipPorts"
+    value = true
+  }
 }
 
 resource "kubernetes_ingress" "consul" {

@@ -1,6 +1,14 @@
-[all:vars]
+[macmini:vars]
 ansible_user=ubuntu
 nfs_server=192.168.1.144
 
-[all]
+[consul:vars]
+consul_datacenter=blizzard
+
+[macmini]
 192.168.1.28
+
+[consul]
+raspberrypi01.coldbrew.labs:9301
+raspberrypi02.coldbrew.labs:9301
+raspberrypi03.coldbrew.labs:9301

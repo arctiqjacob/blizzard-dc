@@ -2,3 +2,7 @@
 collections:
   - community.general
   - ansible.posix
+
+roles:
+  - name: ansible-role-consul
+    src: https://github.com/arctiqjacob/ansible-role-consul

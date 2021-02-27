@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: macmini
   become: yes
   tasks:
     - name: Ensure passwordless sudo
@@ -147,3 +147,7 @@
     # - name: Ensure Docker Compose up
     #   community.general.docker_compose:
     #     project_src: '/array/docker-compose.yml'
+
+    - name: Install Consul agent
+      include_role:
+        name: ansible-role-consul
