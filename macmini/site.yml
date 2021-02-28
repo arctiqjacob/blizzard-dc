@@ -21,6 +21,7 @@
           - 'curl'
           - 'gnupg-agent'
           - 'software-properties-common'
+          - 'python3-pip'
         update_cache: yes
         autoclean: yes
 
@@ -149,5 +150,20 @@
     #     project_src: '/array/docker-compose.yml'
 
     - name: Install Consul agent
-      include_role:
-        name: ansible-role-consul
+      ansible.builtin.include_role:
+        name: 'ansible-role-consul'
+
+    - name: Install python-consul package
+      ansible.builtin.pip:
+        name: 'python-consul'
+        state: 'latest'
+
+    - name: Register services with local Consul agent
+      community.general.consul:
+        service_name: '{{ item.name }}'
+        service_port: '{{ item.port }}'
+      with_items:
+        - { name: 'deluge', port: 8112 }
+        - { name: 'sonarr', port: 8989 }
+        - { name: 'radarr', port: 7878 }
+        - { name: 'jackett', port: 9117 }

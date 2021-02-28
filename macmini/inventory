@@ -4,11 +4,12 @@ nfs_server=192.168.1.144
 
 [consul:vars]
 consul_datacenter=blizzard
+consul_advertise_addr=192.168.1.28
 
 [macmini]
-192.168.1.28
+macmini.coldbrew.labs
 
 [consul]
-raspberrypi01.coldbrew.labs:9301
-raspberrypi02.coldbrew.labs:9301
-raspberrypi03.coldbrew.labs:9301
+raspberrypi01.coldbrew.labs
+raspberrypi02.coldbrew.labs
+raspberrypi03.coldbrew.labs
