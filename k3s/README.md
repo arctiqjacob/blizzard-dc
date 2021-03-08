@@ -2,12 +2,20 @@
 
 ## HashiCorp Vault
 
+### Tuning TTLs
+```bash
+# A user that authenticates with userpass will get a token with a 24h TTL
+$ vault auth tune -default-lease-ttl=24h userpass/
+Success! Tuned the auth method at: userpass/
+```
+
 ### Enabling the Userpass Authentication Method
 ```bash
 # Enable the Userpass auth method
 $ vault auth enable userpass
 Success! Enabled userpass auth method at: userpass/
 
+# Create an admin user
 $ vault write auth/userpass/users/jacobm \
   password=blizzard policies=admins
 Success! Data written to: auth/userpass/users/jacobm
@@ -15,9 +23,11 @@ Success! Data written to: auth/userpass/users/jacobm
 
 ### Enabling the Kubernetes Authentication Method
 ```bash
+# Create a dedicated SA to broker the authentication between SAs and Vault
 $ kubectl create serviceaccount vault-auth -n vault
 serviceaccount/vault-auth created
 
+# Create a ClusterRoleBinding for the above SA
 $ kubectl apply -f - <<EOF
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -50,7 +60,7 @@ $ export K8S_HOST=https://192.168.1.85:6443
 $ vault auth enable kubernetes
 Success! Enabled kubernetes auth method at: kubernetes/
 
-# configure the Kubernetes auth method with the SA JWT, host, and CA cert
+# Configure the Kubernetes auth method with the SA JWT, host, and CA cert
 $ vault write auth/kubernetes/config token_reviewer_jwt="$SA_JWT_TOKEN" \
   kubernetes_host="$K8S_HOST" kubernetes_ca_cert="$SA_CA_CRT"
 Success! Data written to: auth/kubernetes/config
@@ -83,6 +93,37 @@ Success! Data written to: pki/config/ca
 $ vault write pki/roles/coldbrew.labs allowed_domains='coldbrew.labs' \
   allow_subdomains=true max_ttl=168h
 Success! Data written to: pki/roles/coldbrew.labs
+```
+
+### Creating a Vault Token Role
+```bash
+# Create a policy named 'orchestrator' allowing the orchestrator to create tokens 
+$ vault policy write orchestrator - <<EOF
+path "auth/token/create/orchestrator" {
+  capabilities = ["sudo", "create", "update"] 
+}
+
+path "auth/token/roles/orchestrator" { 
+  capabilities = ["read"] 
+}
+EOF
+Success! Uploaded policy: orchestrator
+
+# Create the orchestrator token role that is only allowed to create tokens with 'policy-rw' policy
+$ vault write auth/token/roles/orchestrator allowed_policies=policy-rw period=5m
+Success! Data written to: auth/token/roles/orchestrator
+
+# Create a token with the orchestrator role
+$ vault token create -role=orchestrator
+Key                  Value
+---                  -----
+token                s.Ndd4S9tr4WLDDPaGERP6a3Y9
+token_accessor       HiXdO8FgpowdnVc39OEoqGCj
+token_duration       5m
+token_renewable      true
+token_policies       ["default" "policy-rw"]
+identity_policies    []
+policies             ["default" "policy-rw"]
 ```
 
 ## cert-manager
