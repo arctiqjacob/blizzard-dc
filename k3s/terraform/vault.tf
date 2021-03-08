@@ -17,7 +17,12 @@ resource "helm_release" "vault" {
 
   set {
     name  = "injector.enabled"
-    value = false
+    value = true
+  }
+
+  set {
+    name  = "injector.image.repository"
+    value = "moikot/vault-k8s"
   }
 
   set {

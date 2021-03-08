@@ -126,6 +126,63 @@ identity_policies    []
 policies             ["default" "policy-rw"]
 ```
 
+### Retriving Secrets from Vault
+```bash
+# Create a Vault policy for NGINX
+$ vault policy write nginx - <<EOF
+path "static/data/accounts/admin" {
+  capabilities = ["read"] 
+}
+EOF
+Success! Uploaded policy: nginx
+
+# Create a dedicated SA for NGINX deployment
+$ kubectl create sa nginx
+serviceaccount/nginx created
+
+# Create a Vault role in the Kubernetes Auth for NGINX
+$ vault write auth/kubernetes/role/nginx \
+  bound_service_account_names=nginx \
+  bound_service_account_namespaces=default \
+  policies=nginx ttl=30m
+Success! Data written to: auth/kubernetes/role/nginx
+
+# Deploy NGINX
+$ kubectl create -f manifests/nginx.yaml
+serviceaccount/nginx created
+configmap/nginx-conf created
+deployment.apps/nginx created
+service/nginx created
+
+# Verify the pod is running
+$ kubectl get pods                                 
+NAME                    READY   STATUS    RESTARTS   AGE
+nginx-7c8888986-6hmr6   2/2     Running   0          8m8s
+
+# View the logs of the vault-agent container to ensure successful secret retrieval
+$ kubectl logs nginx-7c8888986-6hmr6 vault-agent -f
+==> Vault agent started! Log data will stream in below:
+
+==> Vault agent configuration:
+...
+
+# Port-forward the NGINX service
+$ kubectl port-forward svc/nginx 8080:80
+Forwarding from 127.0.0.1:8080 -> 80
+Forwarding from [::1]:8080 -> 80
+...
+
+# cURL the service to verify the secrets show successfully
+$ curl http://127.0.0.1:8080
+<html>
+<body>
+<p>Some secrets:</p><ul>
+<li><pre>username: admin</pre></li>
+<li><pre>password: mysecretpassword123</pre></li>
+</ul></body>
+</html>
+```
+
 ## cert-manager
 
 ### Enabling cert-manager with HashiCorp Vault
@@ -154,23 +211,7 @@ $ kubectl get secrets -n cert-manager | grep vault
 cert-manager-vault-token-n22m8        kubernetes.io/service-account-token   3      2m14s
 
 # Create the cert-manager ClusterIssuer
-$ kubectl apply -f - <<EOF
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: vault-issuer
-spec:
-  vault:
-    path: pki/sign/coldbrew.labs
-    server: http://10.43.220.102:8200
-    auth:
-      kubernetes:
-        role: cert-manager
-        mountPath: /v1/auth/kubernetes
-        secretRef:
-          name: cert-manager-vault-token-n22m8 
-          key: token
-EOF
+$ kubectl create -f manifests/clusterissuer.yaml
 clusterissuer.cert-manager.io/vault-issuer created
 
 # Verify the cert-manager clusterissuer is ready
