@@ -32,7 +32,7 @@ resource "helm_release" "consul" {
 
   set {
     name  = "connectInject.enabled"
-    value = false
+    value = true
   }
 
   set {
