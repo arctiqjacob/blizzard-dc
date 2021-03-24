@@ -4,7 +4,7 @@
   tasks:
     - name: Ensure passwordless sudo
       ansible.builtin.lineinfile:
-        path: "/etc/sudoers"
+        path: /etc/sudoers
         state: present
         regexp: "^%sudo"
         line: "%sudo ALL=(ALL) NOPASSWD: ALL"
@@ -13,90 +13,99 @@
     - name: Ensure all packages are up-to-date
       ansible.builtin.apt:
         update_cache: yes
-        autoclean: yes
-        upgrade: "full"
-      register: upgrade
+        state: latest
+      register: update
 
     - name: Install dependencies
       ansible.builtin.apt:
         name:
-          - "nfs-common"
-          - "unzip"
+          - nfs-common
+          - unzip
         update_cache: yes
         autoclean: yes
 
     - name: Enable cgroup via boot commandline if not already
       ansible.builtin.lineinfile:
-        path: "/boot/firmware/cmdline.txt"
+        path: /boot/firmware/cmdline.txt
         backrefs: yes
         regexp: '^((?!.*\bcgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory\b).*)$'
         line: '\1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory'
+      register: cgroup
+      when: ansible_architecture == "aarch64"
 
     - name: Reboot
       ansible.builtin.reboot:
-      when: upgrade.changed
+      when: update.changed or cgroup.changed
 
-    - name: Wait 200 seconds, but only start checking after 30 seconds
+    - name: Wait 200 seconds, but only start checking after 15 seconds
       ansible.builtin.wait_for_connection:
-        delay: 30
+        delay: 15
         timeout: 200
-      when: upgrade.changed
+      when: update.changed or cgroup.changed
 
     - name: Download k3s binary
       ansible.builtin.get_url:
-        url: "https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s-arm64"
+        url: https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s-arm64
         checksum: "sha256:https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/sha256sum-arm64.txt"
-        dest: "/usr/local/bin/k3s"
-        owner: "root"
-        group: "root"
+        dest: /usr/local/bin/k3s
+        owner: root
+        group: root
         mode: 0755
+      when: ansible_architecture == "aarch64"
 
-    - name: Set up main nodes
+    - name: Download k3s binary
+      ansible.builtin.get_url:
+        url: https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s
+        checksum: "sha256:https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/sha256sum-amd64.txt"
+        dest: /usr/local/bin/k3s
+        owner: root
+        group: root
+        mode: 0755
+      when: ansible_architecture == "x86_64"
+
+    - name: Set up controller nodes
       block:
         - name: Copy K3s service file
           ansible.builtin.template:
-            src: "k3s.service.j2"
-            dest: "/etc/systemd/system/k3s.service"
-            owner: "root"
-            group: "root"
+            src: k3s.service.j2
+            dest: /etc/systemd/system/k3s.service
+            owner: root
+            group: root
             mode: 0755
 
         - name: Enable and check K3s service
           ansible.builtin.systemd:
-            name: "k3s"
-            daemon_reload: yes
-            state: "started"
+            name: k3s
+            state: started
             enabled: yes
 
         - name: Wait for node-token
           ansible.builtin.wait_for:
-            path: "/var/lib/rancher/k3s/server/node-token"
-          when: "'main' in group_names"
+            path: /var/lib/rancher/k3s/server/node-token
 
-        - name: Read node-token from main
+        - name: Read node-token from controller
           ansible.builtin.slurp:
-            src: "/var/lib/rancher/k3s/server/node-token"
+            src: /var/lib/rancher/k3s/server/node-token
           register: node_token
 
-        - name: Store main node-token
+        - name: Store controller node-token
           ansible.builtin.set_fact:
             token: "{{ node_token.content | b64decode | regex_replace('\n', '') }}"
-      when: "'main' in group_names"
+      when: "'controllers' in group_names"
 
     - name: Set up worker nodes
       block:
         - name: Copy K3s service file
           ansible.builtin.template:
-            src: "k3s-worker.service.j2"
-            dest: "/etc/systemd/system/k3s-worker.service"
-            owner: "root"
-            group: "root"
+            src: k3s-worker.service.j2
+            dest: /etc/systemd/system/k3s-worker.service
+            owner: root
+            group: root
             mode: 0755
 
         - name: Enable and check K3s service
           ansible.builtin.systemd:
-            name: "k3s-worker"
-            daemon_reload: yes
-            state: "started"
+            name: k3s-worker
+            state: started
             enabled: yes
-      when: "'worker' in group_names"
+      when: "'workers' in group_names"

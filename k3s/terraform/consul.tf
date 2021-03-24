@@ -8,8 +8,6 @@ resource "kubernetes_namespace" "consul" {
 }
 
 resource "helm_release" "consul" {
-  depends_on = [kubernetes_storage_class.nfs_client_provisioner]
-
   name       = "consul"
   namespace  = kubernetes_namespace.consul.metadata[0].name
   chart      = "consul"
@@ -27,12 +25,12 @@ resource "helm_release" "consul" {
 
   set {
     name  = "global.imageEnvoy"
-    value = "jsiebens/envoy-arm64:1.13.3"
+    value = "envoyproxy/envoy-dev:b9b95f89a364cc76ca5d6d80fbe7cef9b2d26a76"
   }
 
   set {
     name  = "connectInject.enabled"
-    value = false
+    value = true
   }
 
   set {
@@ -49,10 +47,10 @@ resource "helm_release" "consul" {
     name  = "server.storage"
     value = "1Gi"
   }
-
+  
   set {
     name  = "server.storageClass"
-    value = "coldbrew-storage"
+    value = kubernetes_storage_class.nfs_client_provisioner.metadata[0].name
   }
 
   set {

@@ -1,11 +1,12 @@
 [all:vars]
-k3s_version="v1.19.7+k3s1"
-master_ip="{{ hostvars[groups['main'][0]]['ansible_host'] | default(groups['main'][0]) }}"
+k3s_version="v1.19.8+k3s1"
+master_ip="{{ hostvars[groups['controllers'][0]]['ansible_host'] | default(groups['controllers'][0]) }}"
 ansible_user="ubuntu"
+extra_server_args=""
 
-[main]
-192.168.1.85
+[controllers]
+raspberrypi01
 
-[worker]
-192.168.1.134
-192.168.1.120
+[workers]
+raspberrypi02
+raspberrypi03

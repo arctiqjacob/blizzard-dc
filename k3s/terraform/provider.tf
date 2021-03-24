@@ -1,11 +1,11 @@
 provider "kubernetes" {
-  config_path    = "~/.kube/config"
-  config_context = "raspberrypi_k3s"
+  config_path    = "~/Desktop/kubeconfig"
+  config_context = "default"
 }
 
 provider "helm" {
   kubernetes {
-    config_path    = "~/.kube/config"
-    config_context = "raspberrypi_k3s"
+    config_path    = "~/Desktop/kubeconfig"
+    config_context = "default"
   }
 }

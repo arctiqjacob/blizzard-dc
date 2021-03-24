@@ -126,7 +126,8 @@ identity_policies    []
 policies             ["default" "policy-rw"]
 ```
 
-### Retriving Secrets from Vault
+### Kubernetes Application Retriving Secrets from Vault
+Deploy a simple NGINX pod that retrives and displays secrets from a KV Secrets Engine.
 ```bash
 # Create a Vault policy for NGINX
 $ vault policy write nginx - <<EOF
@@ -218,4 +219,10 @@ clusterissuer.cert-manager.io/vault-issuer created
 $ kubectl get clusterissuer -o wide
 NAME           READY   STATUS           AGE
 vault-issuer   True    Vault verified   14m
+```
+
+### Create and Sign a Certificate with cert-manager and Vault
+```bash
+# Create the cert-manager certificate resource 
+
 ```
