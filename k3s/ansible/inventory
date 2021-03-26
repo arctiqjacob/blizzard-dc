@@ -2,7 +2,7 @@
 k3s_version="v1.19.8+k3s1"
 master_ip="{{ hostvars[groups['controllers'][0]]['ansible_host'] | default(groups['controllers'][0]) }}"
 ansible_user="ubuntu"
-extra_server_args=""
+extra_server_args="--no-deploy local-storage"
 
 [controllers]
 raspberrypi01
