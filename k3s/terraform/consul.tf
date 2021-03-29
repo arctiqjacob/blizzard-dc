@@ -25,12 +25,12 @@ resource "helm_release" "consul" {
 
   set {
     name  = "global.imageEnvoy"
-    value = "envoyproxy/envoy-dev:b9b95f89a364cc76ca5d6d80fbe7cef9b2d26a76"
+    value = "jsiebens/envoy-arm64:1.13.3"
   }
 
   set {
     name  = "connectInject.enabled"
-    value = false
+    value = true
   }
 
   set {
