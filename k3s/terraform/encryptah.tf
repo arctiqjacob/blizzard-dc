@@ -47,8 +47,9 @@ resource "kubernetes_deployment" "encryptah_frontend" {
         }
 
         annotations = {
-          "consul.hashicorp.com/connect-inject" = "true",
-          "consul.hashicorp.com/connect-service-upstreams" = "encryptah-backend:5678"
+          "consul.hashicorp.com/connect-inject"            = "true",
+          "consul.hashicorp.com/connect-service-upstreams" = "encryptah-backend:5678",
+          "consul.hashicorp.com/service-tags"              = "encryptah"
         }
       }
 
@@ -101,7 +102,8 @@ resource "kubernetes_deployment" "encryptah_backend" {
         }
 
         annotations = {
-          "consul.hashicorp.com/connect-inject" = "true"
+          "consul.hashicorp.com/connect-inject" = "true",
+          "consul.hashicorp.com/service-tags"   = "encryptah"
         }
       }
 

@@ -19,7 +19,7 @@ resource "helm_release" "vault" {
     name  = "injector.enabled"
     value = true
   }
-  
+
   set {
     name  = "server.ha.enabled"
     value = true

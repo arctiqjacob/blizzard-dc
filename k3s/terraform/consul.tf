@@ -24,6 +24,11 @@ resource "helm_release" "consul" {
   }
 
   set {
+    name  = "global.image"
+    value = "hashicorp/consul:1.9.3"
+  }
+
+  set {
     name  = "global.imageEnvoy"
     value = "jsiebens/envoy-arm64:1.13.3"
   }
@@ -47,7 +52,7 @@ resource "helm_release" "consul" {
     name  = "server.storage"
     value = "1Gi"
   }
-  
+
   set {
     name  = "server.storageClass"
     value = kubernetes_storage_class.nfs_client_provisioner.metadata[0].name
@@ -64,8 +69,28 @@ resource "helm_release" "consul" {
   }
 
   set {
+    name  = "server.metrics.enabled"
+    value = true
+  }
+
+  set {
+    name  = "server.metrics.enableAgentMetrics"
+    value = true
+  }
+
+  set {
     name  = "client.exposeGossipPorts"
     value = true
+  }
+
+  set {
+    name  = "ui.metrics.enabled"
+    value = true
+  }
+
+  set {
+    name  = "ui.metrics.baseURL"
+    value = "http://prometheus-operated.monitoring:9090"
   }
 }
 
