@@ -57,7 +57,7 @@ resource "kubernetes_deployment" "encryptah_frontend" {
         service_account_name = kubernetes_service_account.encryptah_frontend.metadata[0].name
 
         container {
-          image = "jacobmammoliti/encryptah-fe:latest"
+          image = "jacobmammoliti/encryptah-frontend:1.0"
           name  = "encryptah-frontend"
 
           port {
@@ -87,7 +87,7 @@ resource "kubernetes_deployment" "encryptah_backend" {
   }
 
   spec {
-    replicas = 1
+    replicas = 2
 
     selector {
       match_labels = {
@@ -111,12 +111,32 @@ resource "kubernetes_deployment" "encryptah_backend" {
         service_account_name = kubernetes_service_account.encryptah_backend.metadata[0].name
 
         container {
-          image = "jacobmammoliti/encryptah-be"
+          image = "jacobmammoliti/encryptah-backend:1.0"
           name  = "encryptah-backend"
 
           port {
             container_port = "5678"
             name           = "http"
+          }
+
+          liveness_probe {
+            http_get {
+              path = "/health"
+              port = 5678
+            }
+
+            initial_delay_seconds = 3
+            period_seconds        = 3
+          }
+
+          readiness_probe {
+            http_get {
+              path = "/health"
+              port = 5678
+            }
+            
+            initial_delay_seconds = 3
+            period_seconds        = 3
           }
         }
 

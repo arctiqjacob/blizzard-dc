@@ -39,6 +39,11 @@ resource "helm_release" "consul" {
   }
 
   set {
+    name  = "connectInject.healthChecks.enabled"
+    value = true
+  }
+
+  set {
     name  = "server.replicas"
     value = 3
   }
