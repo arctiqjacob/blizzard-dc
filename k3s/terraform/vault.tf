@@ -34,6 +34,22 @@ resource "helm_release" "vault" {
     name  = "ui.enabled"
     value = true
   }
+
+  set {
+    name  = "server.ha.config"
+    value = <<EOF
+ui = true
+listener "tcp" {
+  tls_disable = 1
+  address = "[::]:8200"
+  cluster_address = "[::]:8201"
+}
+storage "consul" {
+  path = "vault"
+  address = "HOST_IP:8500"
+}
+EOF
+  }
 }
 
 resource "kubernetes_ingress" "vault" {

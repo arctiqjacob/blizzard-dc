@@ -1,5 +1,69 @@
 # Raspberry Pi K3s Cluster
 
+## HashiCorp Consul
+
+### Configuring the Ingress Gateway for Encryptah
+This assumes the Ingress Gateway and Encryptah are already deployed. Can't do this through Terraform's Kubernetes Alpha provider at this time.
+```bash
+# Create the Service Default
+$ kubectl apply -f - <<EOF
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceDefaults
+metadata:
+  name: encryptah-frontend
+spec:
+  protocol: 'http'
+EOF
+
+# Create the Service Resolver
+$ kubectl apply -f - <<EOF
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceResolver
+metadata:
+  name: encryptah-frontend
+spec:
+  defaultSubset: v1
+  subsets:
+    v1:
+      filter: 'Service.Meta.version == v1'
+      onlyPassing: true
+    v2:
+      filter: 'Service.Meta.version == v2'
+      onlyPassing: true
+EOF
+
+# Create the Service Splitter
+$ kubectl apply -f - <<EOF
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceSplitter
+metadata:
+  name: encryptah-frontend
+spec:
+  splits:
+    - weight: 100
+      service: encryptah-frontend
+      serviceSubset: v1
+    - weight: 0
+      service: encryptah-frontend
+      serviceSubset: v2
+EOF
+
+# Create the Ingress Gateway entry
+$ kubectl apply -f - <<EOF
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: IngressGateway
+metadata:
+  name: ingress-gateway
+spec:
+  listeners:
+    - port: 8080
+      protocol: http
+      services:
+        - name: encryptah-frontend
+          hosts: ['encryptah.coldbrew.labs']
+EOF
+```
+
 ## HashiCorp Vault
 
 ### Tuning TTLs

@@ -97,6 +97,21 @@ resource "helm_release" "consul" {
     name  = "ui.metrics.baseURL"
     value = "http://prometheus-operated.monitoring:9090"
   }
+
+  set {
+    name  = "ingressGateways.enabled"
+    value = true
+  }
+
+  set {
+    name  = "ingressGateways.defaults.service.type"
+    value = "LoadBalancer"
+  }
+
+  set {
+    name  = "controller.enabled"
+    value = true
+  }
 }
 
 resource "kubernetes_ingress" "consul" {
