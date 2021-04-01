@@ -40,10 +40,10 @@ metadata:
   name: encryptah-frontend
 spec:
   splits:
-    - weight: 100
+    - weight: 50
       service: encryptah-frontend
       serviceSubset: v1
-    - weight: 0
+    - weight: 50
       service: encryptah-frontend
       serviceSubset: v2
 EOF
@@ -66,13 +66,6 @@ EOF
 
 ## HashiCorp Vault
 
-### Tuning TTLs
-```bash
-# A user that authenticates with userpass will get a token with a 24h TTL
-$ vault auth tune -default-lease-ttl=24h userpass/
-Success! Tuned the auth method at: userpass/
-```
-
 ### Enabling the Userpass Authentication Method
 ```bash
 # Enable the Userpass auth method
@@ -83,6 +76,34 @@ Success! Enabled userpass auth method at: userpass/
 $ vault write auth/userpass/users/jacobm \
   password=blizzard policies=admins
 Success! Data written to: auth/userpass/users/jacobm
+
+# A user that authenticates with userpass will get a token with a 24h TTL
+$ vault auth tune -default-lease-ttl=24h userpass/
+Success! Tuned the auth method at: userpass/
+```
+
+### Enabling LDAP Authentication Method
+```bash
+# Enable the ldap auth method
+$ vault auth enable ldap
+Success! Enabled ldap auth method at: ldap/
+
+# Apply ldap config
+$ vault write auth/ldap/config \
+  url="ldap://blizzard-nas.coldbrew.labs" \
+  groupdn="cn=groups,dc=blizzard-nas,dc=coldbrew,dc=labs" \
+  userdn="dc=blizzard-nas,dc=coldbrew,dc=labs" \
+  binddn="uid=root,cn=users,dc=blizzard-nas,dc=coldbrew,dc=labs" \
+  bindpass="mysecretpassword"
+Success! Data written to: auth/ldap/config
+
+# Attach ldap group administrators to the admins Vault policy
+$ vault write auth/ldap/groups/administrators policies=admins
+Success! Data written to: auth/ldap/groups/administrators
+
+# A user that authenticates with ldap will get a token with a 4h TTL
+$ vault auth tune -default-lease-ttl=4h ldap/
+Success! Tuned the auth method at: ldap/
 ```
 
 ### Enabling the Kubernetes Authentication Method
