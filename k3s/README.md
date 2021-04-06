@@ -1,32 +1,5 @@
 # Raspberry Pi K3s Cluster
 
-
-```bash
-
-kubectl apply -f - <<EOF
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  labels:
-    serviceapp: vault-servicemonitor
-    release: prometheus
-  name: prometheus-kube-prometheus-vault
-  namespace: monitoring
-spec:
-  endpoints:
-  - bearerTokenFile: 's.stWSHIEnhiYz2gyqQ5geyiYK'
-    path: /v1/sys/metrics
-    interval: 15s
-    port: "8200"
-  namespaceSelector:
-    matchNames:
-    - vault
-  selector:
-    matchLabels:
-      component: server
-EOF
-```
-
 ## HashiCorp Consul
 
 ### Configuring the Ingress Gateway for Encryptah
