@@ -48,6 +48,10 @@ storage "consul" {
   path = "vault"
   address = "HOST_IP:8500"
 }
+telemetry {
+  prometheus_retention_time = "30s"
+  disable_hostname = true
+}
 EOF
   }
 }

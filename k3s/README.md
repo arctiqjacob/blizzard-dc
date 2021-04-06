@@ -1,5 +1,32 @@
 # Raspberry Pi K3s Cluster
 
+
+```bash
+
+kubectl apply -f - <<EOF
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    serviceapp: vault-servicemonitor
+    release: prometheus
+  name: prometheus-kube-prometheus-vault
+  namespace: monitoring
+spec:
+  endpoints:
+  - bearerTokenFile: 's.stWSHIEnhiYz2gyqQ5geyiYK'
+    path: /v1/sys/metrics
+    interval: 15s
+    port: "8200"
+  namespaceSelector:
+    matchNames:
+    - vault
+  selector:
+    matchLabels:
+      component: server
+EOF
+```
+
 ## HashiCorp Consul
 
 ### Configuring the Ingress Gateway for Encryptah
@@ -40,10 +67,10 @@ metadata:
   name: encryptah-frontend
 spec:
   splits:
-    - weight: 50
+    - weight: 75
       service: encryptah-frontend
       serviceSubset: v1
-    - weight: 50
+    - weight: 25
       service: encryptah-frontend
       serviceSubset: v2
 EOF
@@ -139,7 +166,7 @@ $ export SA_JWT_TOKEN=$(kubectl get secret $VAULT_SA_NAME -n vault -o jsonpath="
 $ export SA_CA_CRT=$(kubectl get secret $VAULT_SA_NAME -n vault -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
 
 # Get Kubernetes endpoint
-$ export K8S_HOST=https://192.168.1.85:6443
+$ export K8S_HOST=https://192.168.1.86:6443
 
 # Enable the Kubernetes auth method
 $ vault auth enable kubernetes
@@ -267,6 +294,25 @@ $ curl http://127.0.0.1:8080
 <li><pre>password: mysecretpassword123</pre></li>
 </ul></body>
 </html>
+```
+
+### Creating a Policy and Kubernetes Role for prometheus
+The Helm chart will take care of creating the Kubernetes SA `prometheus-sa` in the `monitoring` namespace. Need to create the policy and Kubernetes role in Vault. The Vault sidecar injector is used to mount the Vault token in the Prometheus pod to be picked up by the `bearerTokenFile`.
+```bash
+# Create a Vault policy for prometheus
+$ vault policy write prometheus - <<EOF
+path "sys/metrics*" {
+  capabilities = ["read", "list"] 
+}
+EOF
+Success! Uploaded policy: prometheus
+
+# Create a Vault role in the Kubernetes Auth for prometheus
+$ vault write auth/kubernetes/role/prometheus \
+  bound_service_account_names=prometheus-sa \
+  bound_service_account_namespaces=monitoring \
+  policies=prometheus,default ttl=24h
+Success! Data written to: auth/kubernetes/role/prometheus
 ```
 
 ## cert-manager

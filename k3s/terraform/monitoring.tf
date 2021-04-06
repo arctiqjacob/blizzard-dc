@@ -13,6 +13,10 @@ resource "helm_release" "montoring" {
   chart      = "kube-prometheus-stack"
   repository = "https://prometheus-community.github.io/helm-charts"
 
+  values = [
+    templatefile("values/monitoring.tmpl", {})
+  ]
+
   set {
     name  = "kube-state-metrics.image.repository"
     value = "k8s.gcr.io/kube-state-metrics-arm64"
