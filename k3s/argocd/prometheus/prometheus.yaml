@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+spec:
+  destination:
+    name: ''
+    namespace: monitoring
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: ''
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    targetRevision: 14.5.0
+    chart: kube-prometheus-stack
+    helm:
+      valueFiles: []
+      values: |-
+        kube-state-metrics:
+          image:
+            repository: k8s.gcr.io/kube-state-metrics-arm64
+            tag: v1.9.5
+        prometheus:
+          prometheusSpec:
+            podMetadata:
+              annotations:
+                'vault.hashicorp.com/agent-inject': 'true'
+                'vault.hashicorp.com/role': 'prometheus'
+                'vault.hashicorp.com/agent-inject-token': 'true'
+          serviceAccount:
+            name: prometheus-sa
+          additionalServiceMonitors:
+            - name: prometheus-kube-prometheus-vault
+              selector:
+                matchLabels:
+                  app.kubernetes.io/name: vault
+              namespaceSelector:
+                matchNames:
+                  - vault
+              endpoints:
+                - bearerTokenFile: /vault/secrets/token
+                  path: /v1/sys/metrics
+                  interval: 5s
+                  targetPort: 8200
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
