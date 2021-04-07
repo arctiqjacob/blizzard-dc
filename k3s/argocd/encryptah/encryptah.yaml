@@ -70,7 +70,7 @@ metadata:
   labels:
     app: frontend
     version: v1
-  name: frontend
+  name: frontend-v1
   namespace: encryptah
 spec:
   selector:
@@ -126,7 +126,7 @@ metadata:
   labels:
     app: frontend
     version: v2
-  name: frontend
+  name: frontend-v2
   namespace: encryptah
 spec:
   selector:
