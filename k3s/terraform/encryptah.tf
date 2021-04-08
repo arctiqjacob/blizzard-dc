@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "encryptah_frontend_v1" {
     namespace = kubernetes_namespace.encryptah.metadata[0].name
 
     labels = {
-      app = "frontend"
+      app     = "frontend"
       version = "v1"
     }
   }
@@ -37,7 +37,7 @@ resource "kubernetes_deployment" "encryptah_frontend_v1" {
 
     selector {
       match_labels = {
-        app = "frontend"
+        app     = "frontend"
         version = "v1"
       }
     }
@@ -45,7 +45,7 @@ resource "kubernetes_deployment" "encryptah_frontend_v1" {
     template {
       metadata {
         labels = {
-          app = "frontend"
+          app     = "frontend"
           version = "v1"
         }
 
@@ -86,7 +86,7 @@ resource "kubernetes_deployment" "encryptah_frontend_v2" {
     namespace = kubernetes_namespace.encryptah.metadata[0].name
 
     labels = {
-      app = "frontend"
+      app     = "frontend"
       version = "v2"
     }
   }
@@ -96,7 +96,7 @@ resource "kubernetes_deployment" "encryptah_frontend_v2" {
 
     selector {
       match_labels = {
-        app = "frontend"
+        app     = "frontend"
         version = "v2"
       }
     }
@@ -104,7 +104,7 @@ resource "kubernetes_deployment" "encryptah_frontend_v2" {
     template {
       metadata {
         labels = {
-          app = "frontend"
+          app     = "frontend"
           version = "v2"
         }
 
