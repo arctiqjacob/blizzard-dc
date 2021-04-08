@@ -1,0 +1,41 @@
+global:
+  datacenter: blizzard
+  name: consul
+  image: hashicorp/consul:1.9.3
+  imageEnvoy: jsiebens/envoy-arm64:1.13.3
+
+connectInject:
+  enabled: true
+  healthChecks:
+    enabled: true
+
+server:
+  replicas: 3
+  bootstrapExpect: 3
+  storage: 1Gi
+  storageClass: coldbrew-storage
+  exposeGossipAndRPCPorts: true
+  ports:
+    serflan:
+      port: 9301
+  metrics:
+    enabled: true
+    enableAgentMetrics: true
+
+client:
+  exposeGossipPorts: true
+
+ingressGateways:
+  enabled: true
+  defaults:
+    service:
+      type: LoadBalancer
+
+controller:
+  enabled: true
+
+ui:
+  ingress:
+    enabled: true
+    hosts:
+      - host: consul.coldbrew.labs

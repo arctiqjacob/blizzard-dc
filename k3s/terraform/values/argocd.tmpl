@@ -1,0 +1,10 @@
+global:
+  image:
+    repository: alinbalutoiu/argocd
+server:
+  extraArgs:
+    - --insecure
+  ingress:
+    enabled: true
+    hosts:
+      - argocd.coldbrew.labs

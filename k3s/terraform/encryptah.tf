@@ -271,22 +271,3 @@ resource "kubernetes_ingress" "encryptah" {
     }
   }
 }
-
-## This doesn't work cause tf can't reconcile the CRD
-# resource "kubernetes_manifest" "encryptah-service-defaults" {
-#   provider = kubernetes-alpha
-
-#   manifest = {
-#     apiVersion = "consul.hashicorp.com/v1alpha1"
-#     kind       = "ServiceDefaults"
-
-#     metadata = {
-#       name      = "encryptah-frontend"
-#       namespace = "consul"
-#     }
-
-#     spec = {
-#       protocol = "http"
-#     }
-#   }
-# }
