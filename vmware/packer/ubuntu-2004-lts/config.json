@@ -36,17 +36,16 @@
       "iso_checksum": "{{ user `iso_checksum` }}",
 
       "ssh_username": "ubuntu",
-      "ssh_password": "ubuntu",
+      "ssh_password": "packer",
       "ssh_timeout": "20m",
       "boot_wait": "5s",
+      "cd_files": ["./http/user-data", "./http/meta-data"],
+      "cd_label": "cidata",
+
       "boot_command": [
-        "<esc><esc><esc>",
-        "<enter><wait>",
-        "/casper/vmlinuz ",
-        "root=/dev/sr0 ",
-        "initrd=/casper/initrd ",
-        "autoinstall ds=nocloud-net;s=http://192.168.100.133/",
-        "<enter>"
+        "<enter><wait2><enter><wait><f6><esc><wait>",
+        " autoinstall<wait2> ds=nocloud;",
+        "<wait><enter>"
       ]
     }
   ],
