@@ -1,29 +1,13 @@
 #cloud-config
-autoinstall:
-  version: 1
-  locale: en_US
-  keyboard:
-    layout: en
-    variant: us
-  network:
-    network:
-      version: 2
-      ethernets:
-        ens192:
-          dhcp4: true
-  storage:
-    layout:
-      name: lvm
-  identity:
-    hostname: ubuntu
-    # password is ubuntu
-    password: "$6$AA.Jw829.bXpJ4w$bf2mI99OoUo2F4/rSfnAD9vNg2vjOiJaynMSeOgZcE3PB/OMCRgYuon74mIyzgUiXBEA8/VluqEQuZBGcQq5B."
-    username: ubuntu
-  packages:
-    - openssh-server
-    - qemu-guest-agent
-  ssh:
-    allow-pw: true
-    install-server: false
-  late-commands:
-    - echo 'ubnt ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
+growpart: {mode: 'off'}
+locale: en_US.UTF-8
+preserve_hostname: true
+resize_rootfs: false
+ssh_pwauth: true
+users:
+- gecos: ubuntu
+  groups: [adm, cdrom, dip, plugdev, lxd, sudo]
+  lock_passwd: false
+  name: ubuntu
+  passwd: $6$Rs4gHoX9.LlpK4aL$zb43JGlGFBAtQ6yd31AM/J68xhIWAhaHFhGLF4VTSunIQUMg6beZpAinL2AopmeBPhMtxALjeadwB42SsLuYJ1
+  shell: /bin/bash

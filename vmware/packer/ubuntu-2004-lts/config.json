@@ -36,8 +36,9 @@
       "iso_checksum": "{{ user `iso_checksum` }}",
 
       "ssh_username": "ubuntu",
-      "ssh_password": "packer",
+      "ssh_password": "ubuntu",
       "ssh_timeout": "20m",
+      "ssh_handshake_attempts": 100,
       "boot_wait": "5s",
       "cd_files": ["./http/user-data", "./http/meta-data"],
       "cd_label": "cidata",
