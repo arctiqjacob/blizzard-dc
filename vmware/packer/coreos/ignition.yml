@@ -1,4 +1,4 @@
 passwd:
   users:
-    - name: packer
+    - name: core
       password_hash: $6$7b/BXA6kMeTyVQGO$T4jarBQLCpI3q9nRzMiWNpiGKA1itC11kdCcpLmqc6R3ZsyYA5T15gC02JnPKMx/QSRR1TpFhmAiPc2dJDFgf.
