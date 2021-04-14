@@ -1,0 +1,53 @@
+{
+  "builders": [
+    {
+      "type": "vsphere-iso",
+
+      "CPUs": 2,
+      "RAM": 4096,
+
+      "vcenter_server": "{{ user `vsphere_server` }}",
+      "username": "{{ user `username` }}",
+      "password": "{{ user `vsphere_password` }}",
+      "insecure_connection": "{{ user `vsphere_insecure_connection` }}",
+      "datacenter": "{{ user `vsphere_datacenter` }}",
+
+      "vm_name": "{{ user `vm_name` }}",
+      "host": "{{ user `host` }}",
+      "datastore": "{{ user `datastore` }}",
+
+      "guest_os_type": "centos8_64Guest",
+
+      "network_adapters": [
+        {
+          "network": "Internal Network",
+          "network_card": "vmxnet3"
+        }
+      ],
+
+      "storage": [
+        {
+          "disk_size": 20480,
+          "disk_thin_provisioned": true
+        }
+      ],
+
+      "iso_paths": ["{{ user `iso_paths` }}"],
+      "iso_checksum": "{{ user `iso_checksum` }}",
+
+      "ssh_username": "core",
+      "ssh_password": "core",
+
+      "boot_command": [
+        "<tab> text ks=https://raw.githubusercontent.com/arctiqjacob/blizzard-dc/main/packer/centos-822004/ks.cfg<enter><wait>"
+      ]
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": "sudo hostnamectl set-hostname {{ user `vm_name` }}"
+    }
+  ]
+}
