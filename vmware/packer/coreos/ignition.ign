@@ -10,7 +10,10 @@
           "sudo"
         ],
         "name": "core",
-        "passwordHash": "$6$7b/BXA6kMeTyVQGO$T4jarBQLCpI3q9nRzMiWNpiGKA1itC11kdCcpLmqc6R3ZsyYA5T15gC02JnPKMx/QSRR1TpFhmAiPc2dJDFgf."
+        "passwordHash": "$6$7b/BXA6kMeTyVQGO$T4jarBQLCpI3q9nRzMiWNpiGKA1itC11kdCcpLmqc6R3ZsyYA5T15gC02JnPKMx/QSRR1TpFhmAiPc2dJDFgf.",
+        "sshAuthorizedKeys": [
+          "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDy7B1iZ4/DKKN/26z0fiiV90LP6Sh0TMAo0IZQ52TfxvaPYq7+XWoncvkwUGdITYWuQ8BDoUIaCX51cWLNbiwm+6WCZoyMoPLREmtFIr9AVO+HQMs8Jv4Feyx/fiPMgRJbp7muEtSLPyz83uoxtfJX9+rURqbz1RUxCdgyyGCy4FXqVaBm1sgxrKF4kqJXpLOvcJacYRHB/5lLSgxajQdMrZXDuI4ykKeDcN075Km+o25xo28SrKmONUgi1CECrYwiSikj/cNVbm+4DFUDEigGqmUG/bUQ/H4hE40vPIIJD8aWZqADjwcil9U6fAq8erlN29rtUylPgyAxSj/5tPotX8XrBJ5t8xlGjRoineUEbSr0i/yQhZAh/mNtzDwEwy2jIluL1/dJioYlADpwO83FZmxrLFKxEUHiu8SkYXBui+BF+U1IFJlj9GLC51OmUxi2MIS6FBWablP8bv254kd70heU2y5FC1a4+yX1XUQ1TTy4rrp3CfFjrEmO6sRRGA8= jacobmammoliti@Jacobs-MacBook-Pro.local"
+        ]
       }
     ]
   }
